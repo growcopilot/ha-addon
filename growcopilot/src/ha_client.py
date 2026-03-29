@@ -6,11 +6,16 @@ import aiohttp
 
 logger = logging.getLogger("growcopilot.ha_client")
 SUPERVISOR_URL = "http://supervisor"
-SUPERVISOR_TOKEN = os.environ.get("SUPERVISOR_TOKEN", "")
+
 
 class HASupervisorClient:
     def __init__(self) -> None:
-        self._headers = {"Authorization": f"Bearer {SUPERVISOR_TOKEN}"}
+        token = os.environ.get("SUPERVISOR_TOKEN", "")
+        if not token:
+            logger.warning("SUPERVISOR_TOKEN not set — Supervisor API calls will fail")
+        else:
+            logger.info("SUPERVISOR_TOKEN found (%d chars)", len(token))
+        self._headers = {"Authorization": f"Bearer {token}"}
 
     async def get_states(self) -> list[dict[str, Any]]:
         async with aiohttp.ClientSession() as session:
