@@ -1,0 +1,17 @@
+name: GrowCopilot
+version: 1.0.0
+slug: growcopilot
+description: AI-powered plant health monitoring — push camera snapshots to GrowCopilot
+url: https://growcopilot.ai
+arch:
+  - amd64
+  - aarch64
+  - armv7
+ingress: true
+ingress_port: 8099
+panel_icon: mdi:leaf
+panel_title: GrowCopilot
+options:
+  api_token: ""
+schema:
+  api_token: str

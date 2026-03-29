@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="panel">
+  <h2>API Token</h2>
+  <p class="muted">Paste your GrowCopilot device token to connect this add-on.</p>
+  {% if has_token %}
+  <div class="status-badge status-badge--ok">Connected</div>
+  {% endif %}
+  <form method="post" action="/setup" class="form-stack">
+    <input type="text" name="api_token" placeholder="gc_..." class="input" autocomplete="off">
+    <button type="submit" class="btn-primary">Validate &amp; Save</button>
+  </form>
+  {% if error == 'invalid_format' %}
+  <div class="status-badge status-badge--error">Token must start with gc_</div>
+  {% endif %}
+  {% if error == 'invalid_token' %}
+  <div class="status-badge status-badge--error">Invalid token — check your API Tokens page in GrowCopilot</div>
+  {% endif %}
+</div>
+{% endblock %}

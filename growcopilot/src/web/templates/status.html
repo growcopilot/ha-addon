@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="panel">
+  <h2>Status</h2>
+  <div class="status-grid">
+    <div class="status-item">
+      <div class="label-small">API Connection</div>
+      <div class="status-badge {% if has_token %}status-badge--ok{% else %}status-badge--error{% endif %}">
+        {% if has_token %}Connected{% else %}Not configured{% endif %}
+      </div>
+    </div>
+  </div>
+  <p class="muted" style="margin-top: 16px;">Capture status and error logs will appear here once cameras are mapped in GrowCopilot.</p>
+</div>
+{% endblock %}

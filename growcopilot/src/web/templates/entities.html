@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="panel">
+  <h2>Select Entities</h2>
+  <p class="muted">Choose which cameras and sensors to forward to GrowCopilot.</p>
+  {% if saved %}
+  <div class="status-badge status-badge--ok">Saved &amp; synced</div>
+  {% endif %}
+  <form method="post" action="/entities">
+    {% set cameras = [] %}
+    {% set sensors = [] %}
+    {% for e in entities %}
+      {% if e.entityType == 'camera' %}{% if cameras.append(e) %}{% endif %}
+      {% else %}{% if sensors.append(e) %}{% endif %}
+      {% endif %}
+    {% endfor %}
+    {% if cameras %}
+    <div class="entity-section">
+      <h3>Cameras</h3>
+      {% for e in cameras %}
+      <label class="entity-check">
+        <input type="checkbox" name="{{ e.entityId }}" value="1" {% if e.entityId in selected_ids %}checked{% endif %}>
+        <span class="entity-check-label">
+          <strong>{{ e.friendlyName }}</strong>
+          <span class="muted">{{ e.entityId }}</span>
+        </span>
+      </label>
+      {% endfor %}
+    </div>
+    {% endif %}
+    {% if sensors %}
+    <div class="entity-section">
+      <h3>Sensors</h3>
+      {% for e in sensors %}
+      <label class="entity-check">
+        <input type="checkbox" name="{{ e.entityId }}" value="1" {% if e.entityId in selected_ids %}checked{% endif %}>
+        <span class="entity-check-label">
+          <strong>{{ e.friendlyName }}</strong>
+          <span class="muted">{{ e.entityId }}</span>
+        </span>
+      </label>
+      {% endfor %}
+    </div>
+    {% endif %}
+    {% if not entities %}
+    <p class="muted">No cameras or sensors found. Make sure your HA instance has camera or sensor entities.</p>
+    {% endif %}
+    <button type="submit" class="btn-primary">Save &amp; Sync</button>
+  </form>
+</div>
+{% endblock %}
