@@ -17,15 +17,19 @@ async def main() -> None:
     from src.gc_client import GrowCopilotClient
 
     api_token = os.environ.get("API_TOKEN", "")
-    if not api_token:
-        try:
-            with open("/data/options.json") as f:
-                options = json.load(f)
-                api_token = options.get("api_token", "")
-        except FileNotFoundError:
-            pass
+    api_url = ""
+    try:
+        with open("/data/options.json") as f:
+            options = json.load(f)
+            api_token = api_token or options.get("api_token", "")
+            api_url = options.get("api_url", "")
+    except FileNotFoundError:
+        pass
 
-    gc_client = GrowCopilotClient(api_token=api_token)
+    gc_client = GrowCopilotClient(
+        api_token=api_token,
+        api_base_url=api_url or "https://api.growcopilot.ai",
+    )
     ingress_port = int(os.environ.get("INGRESS_PORT", "8099"))
 
     heartbeat = HeartbeatLoop(gc_client)

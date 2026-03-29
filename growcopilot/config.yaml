@@ -1,5 +1,5 @@
 name: GrowCopilot
-version: 1.0.1
+version: 1.0.2
 slug: growcopilot
 description: AI-powered plant health monitoring — push camera snapshots to GrowCopilot
 url: https://growcopilot.ai
@@ -15,5 +15,7 @@ panel_icon: mdi:leaf
 panel_title: GrowCopilot
 options:
   api_token: ""
+  api_url: "https://api.growcopilot.ai"
 schema:
   api_token: str
+  api_url: url
