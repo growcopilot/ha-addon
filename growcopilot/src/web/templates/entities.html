@@ -6,7 +6,7 @@
   {% if saved %}
   <div class="status-badge status-badge--ok">Saved &amp; synced</div>
   {% endif %}
-  <form method="post" action="/entities">
+  <form method="post" action="{{ base }}/entities">
     {% set cameras = [] %}
     {% set sensors = [] %}
     {% for e in entities %}

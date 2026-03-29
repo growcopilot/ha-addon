@@ -6,7 +6,7 @@
   {% if has_token %}
   <div class="status-badge status-badge--ok">Connected</div>
   {% endif %}
-  <form method="post" action="/setup" class="form-stack">
+  <form method="post" action="{{ base }}/setup" class="form-stack">
     <input type="text" name="api_token" placeholder="gc_..." class="input" autocomplete="off">
     <button type="submit" class="btn-primary">Validate &amp; Save</button>
   </form>

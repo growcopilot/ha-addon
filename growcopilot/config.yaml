@@ -1,5 +1,5 @@
 name: GrowCopilot
-version: 1.0.2
+version: 1.0.3
 slug: growcopilot
 description: AI-powered plant health monitoring — push camera snapshots to GrowCopilot
 url: https://growcopilot.ai
@@ -9,6 +9,8 @@ arch:
   - armv7
 init: false
 startup: services
+homeassistant_api: true
+hassio_api: true
 ingress: true
 ingress_port: 8099
 panel_icon: mdi:leaf

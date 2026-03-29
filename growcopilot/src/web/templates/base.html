@@ -4,16 +4,16 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>GrowCopilot</title>
-  <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="{{ base }}/static/style.css">
 </head>
 <body>
   <div class="shell">
     <nav class="nav">
       <div class="nav-brand">GrowCopilot</div>
       <div class="nav-links">
-        <a href="/setup" class="{% if page == 'setup' %}is-active{% endif %}">Setup</a>
-        <a href="/entities" class="{% if page == 'entities' %}is-active{% endif %}">Entities</a>
-        <a href="/status" class="{% if page == 'status' %}is-active{% endif %}">Status</a>
+        <a href="{{ base }}/setup" class="{% if page == 'setup' %}is-active{% endif %}">Setup</a>
+        <a href="{{ base }}/entities" class="{% if page == 'entities' %}is-active{% endif %}">Entities</a>
+        <a href="{{ base }}/status" class="{% if page == 'status' %}is-active{% endif %}">Status</a>
       </div>
     </nav>
     <main class="main">

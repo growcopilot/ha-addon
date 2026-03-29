@@ -10,6 +10,12 @@ from src.discovery import DiscoveryLoop
 logger = logging.getLogger("growcopilot.web.routes")
 STATIC_DIR = Path(__file__).parent.parent.parent / "static"
 
+
+def _base(request: web.Request) -> str:
+    """Extract the HA ingress base path from the request header."""
+    return request.headers.get("X-Ingress-Path", "").rstrip("/")
+
+
 def setup_routes(app: web.Application) -> None:
     app.router.add_get("/", handle_index)
     app.router.add_get("/setup", handle_setup)
@@ -19,28 +25,32 @@ def setup_routes(app: web.Application) -> None:
     app.router.add_get("/status", handle_status)
     app.router.add_static("/static", STATIC_DIR)
 
+
 @aiohttp_jinja2.template("setup.html")
 async def handle_index(request: web.Request) -> dict:
     gc: GrowCopilotClient = request.app["gc_client"]
-    return {"has_token": bool(gc.api_token), "page": "setup"}
+    return {"has_token": bool(gc.api_token), "page": "setup", "base": _base(request)}
+
 
 @aiohttp_jinja2.template("setup.html")
 async def handle_setup(request: web.Request) -> dict:
     gc: GrowCopilotClient = request.app["gc_client"]
     error = request.query.get("error")
-    return {"has_token": bool(gc.api_token), "page": "setup", "error": error}
+    return {"has_token": bool(gc.api_token), "page": "setup", "error": error, "base": _base(request)}
+
 
 async def handle_setup_post(request: web.Request) -> web.Response:
+    base = _base(request)
     gc: GrowCopilotClient = request.app["gc_client"]
     data = await request.post()
     token = str(data.get("api_token", "")).strip()
     if not token.startswith("gc_"):
-        raise web.HTTPFound("/setup?error=invalid_format")
+        raise web.HTTPFound(f"{base}/setup?error=invalid_format")
     gc.set_token(token)
     valid = await gc.validate_token()
     if not valid:
         gc.set_token("")
-        raise web.HTTPFound("/setup?error=invalid_token")
+        raise web.HTTPFound(f"{base}/setup?error=invalid_token")
     options_path = Path("/data/options.json")
     options = {}
     try:
@@ -50,7 +60,8 @@ async def handle_setup_post(request: web.Request) -> web.Response:
     options["api_token"] = token
     options_path.parent.mkdir(parents=True, exist_ok=True)
     options_path.write_text(json.dumps(options))
-    raise web.HTTPFound("/entities")
+    raise web.HTTPFound(f"{base}/entities")
+
 
 @aiohttp_jinja2.template("entities.html")
 async def handle_entities(request: web.Request) -> dict:
@@ -58,17 +69,20 @@ async def handle_entities(request: web.Request) -> dict:
     if not discovery.discovered:
         await discovery.discover_once()
     saved = request.query.get("saved")
-    return {"entities": discovery.discovered, "selected_ids": discovery.selected_ids, "page": "entities", "saved": saved}
+    return {"entities": discovery.discovered, "selected_ids": discovery.selected_ids, "page": "entities", "saved": saved, "base": _base(request)}
+
 
 async def handle_entities_post(request: web.Request) -> web.Response:
+    base = _base(request)
     discovery: DiscoveryLoop = request.app["discovery"]
     data = await request.post()
     selected = [e["entityId"] for e in discovery.discovered if data.get(e["entityId"])]
     discovery.select_entities(selected)
     await discovery.push_selected()
-    raise web.HTTPFound("/entities?saved=1")
+    raise web.HTTPFound(f"{base}/entities?saved=1")
+
 
 @aiohttp_jinja2.template("status.html")
 async def handle_status(request: web.Request) -> dict:
     gc: GrowCopilotClient = request.app["gc_client"]
-    return {"has_token": bool(gc.api_token), "page": "status"}
+    return {"has_token": bool(gc.api_token), "page": "status", "base": _base(request)}
