@@ -1,13 +1,15 @@
-ARG BUILD_FROM=ghcr.io/home-assistant/amd64-base-python:3.12-alpine3.19
+ARG BUILD_FROM
 FROM ${BUILD_FROM}
 
 WORKDIR /app
 
+RUN apk add --no-cache python3 py3-pip
+
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip3 install --no-cache-dir --break-system-packages -r requirements.txt
 
 COPY run.py .
 COPY src/ src/
 COPY static/ static/
 
-CMD ["python", "run.py"]
+CMD ["python3", "run.py"]
