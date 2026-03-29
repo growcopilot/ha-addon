@@ -7,6 +7,12 @@ import os
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 logger = logging.getLogger("growcopilot")
 
+# Debug: log all env vars that might contain a token
+for key in sorted(os.environ):
+    if any(x in key.upper() for x in ["TOKEN", "HASSIO", "SUPERVISOR", "AUTH"]):
+        val = os.environ[key]
+        logger.info("ENV %s = %s...(%d chars)", key, val[:8] if len(val) > 8 else val, len(val))
+
 
 async def main() -> None:
     from src.web.server import start_server
