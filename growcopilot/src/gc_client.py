@@ -81,3 +81,16 @@ class GrowCopilotClient:
         except Exception:
             logger.exception("Heartbeat failed")
             return None
+
+    async def push_sensor_readings(self, readings: list[dict[str, Any]]) -> None:
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.post(
+                    f"{self.api_base_url}/device/sensor-readings",
+                    headers={**self._headers, "Content-Type": "application/json"},
+                    json={"readings": readings},
+                ) as resp:
+                    if not resp.ok:
+                        logger.warning("Sensor push failed: %s", resp.status)
+        except Exception:
+            logger.exception("Sensor push failed")

@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.2.0
+
+- Sensor data push — reads mapped sensor entities every 5 min and pushes temperature, humidity, illuminance, moisture values to GrowCopilot
+- Immediate sync on startup — heartbeat, discovery, and entity push run immediately when token is present (no more waiting for loop intervals after restart)
+- Discover controllable entities — switch, light, and fan entities are now discoverable and selectable
+- HA service call support — foundation for remote device control (turn on/off switches, lights, fans)
+- Config sync extended to manage both camera and sensor targets
+
 ## 1.1.0
 
 - Live status page showing active cameras, capture intervals, last/next capture times, and selected sensors

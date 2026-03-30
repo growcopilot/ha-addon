@@ -23,6 +23,7 @@ async def main() -> None:
     from src.capture import CaptureLoop
     from src.discovery import DiscoveryLoop
     from src.config_sync import ConfigSyncLoop
+    from src.sensor_push import SensorPushLoop
     from src.gc_client import GrowCopilotClient
 
     api_token = os.environ.get("API_TOKEN", "")
@@ -44,7 +45,18 @@ async def main() -> None:
     heartbeat = HeartbeatLoop(gc_client)
     capture = CaptureLoop(gc_client)
     discovery = DiscoveryLoop(gc_client)
-    config_sync = ConfigSyncLoop(gc_client, capture)
+    sensor_push = SensorPushLoop(gc_client)
+    config_sync = ConfigSyncLoop(gc_client, capture, sensor_push)
+
+    # Immediate sync on startup — don't wait for loop intervals
+    if gc_client.api_token:
+        logger.info("Token present — running initial sync")
+        try:
+            await heartbeat.run_once()
+            await discovery.discover_once()
+            await discovery.push_selected()
+        except Exception:
+            logger.exception("Initial sync failed — will retry in background loops")
 
     tasks = [
         asyncio.create_task(start_server(ingress_port, gc_client, discovery, capture)),
@@ -52,6 +64,7 @@ async def main() -> None:
         asyncio.create_task(discovery.run()),
         asyncio.create_task(config_sync.run()),
         asyncio.create_task(capture.run()),
+        asyncio.create_task(sensor_push.run()),
     ]
 
     logger.info("GrowCopilot add-on started")

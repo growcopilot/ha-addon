@@ -11,6 +11,7 @@ logger = logging.getLogger("growcopilot.discovery")
 SELECTED_ENTITIES_PATH = Path("/data/selected_entities.json")
 DISCOVERY_INTERVAL_SEC = 600
 GROW_SENSOR_CLASSES = {"temperature", "humidity", "illuminance", "moisture"}
+CONTROLLABLE_DOMAINS = {"switch", "light", "fan"}
 
 def filter_entities(states: list[dict[str, Any]]) -> list[dict[str, str]]:
     result: list[dict[str, str]] = []
@@ -18,12 +19,15 @@ def filter_entities(states: list[dict[str, Any]]) -> list[dict[str, str]]:
         eid: str = state.get("entity_id", "")
         attrs = state.get("attributes", {})
         friendly = attrs.get("friendly_name", eid)
-        if eid.startswith("camera."):
+        domain = eid.split(".")[0] if "." in eid else ""
+        if domain == "camera":
             result.append({"entityId": eid, "entityType": "camera", "friendlyName": friendly})
-        elif eid.startswith("sensor."):
+        elif domain == "sensor":
             device_class = attrs.get("device_class", "")
             if device_class in GROW_SENSOR_CLASSES:
                 result.append({"entityId": eid, "entityType": "sensor", "friendlyName": friendly})
+        elif domain in CONTROLLABLE_DOMAINS:
+            result.append({"entityId": eid, "entityType": domain, "friendlyName": friendly})
     return result
 
 def load_selected_ids() -> set[str]:

@@ -28,3 +28,24 @@ class HASupervisorClient:
             async with session.get(f"{SUPERVISOR_URL}/core/api/camera_proxy/{entity_id}", headers=self._headers) as resp:
                 resp.raise_for_status()
                 return await resp.read()
+
+    async def call_service(self, domain: str, service: str, entity_id: str, data: dict[str, Any] | None = None) -> bool:
+        """Call a Home Assistant service (e.g., switch/turn_on)."""
+        payload: dict[str, Any] = {"entity_id": entity_id}
+        if data:
+            payload.update(data)
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                f"{SUPERVISOR_URL}/core/api/services/{domain}/{service}",
+                headers={**self._headers, "Content-Type": "application/json"},
+                json=payload,
+            ) as resp:
+                return resp.ok
+
+    async def get_entity_state(self, entity_id: str) -> dict[str, Any] | None:
+        """Get current state of a single entity."""
+        async with aiohttp.ClientSession() as session:
+            async with session.get(f"{SUPERVISOR_URL}/core/api/states/{entity_id}", headers=self._headers) as resp:
+                if resp.ok:
+                    return await resp.json()
+                return None
