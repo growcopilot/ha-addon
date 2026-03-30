@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.2.1
+
+- Token persistence across add-on updates — token saved to separate file that HA won't overwrite
+- Entity selection grouped by type (Cameras, Sensors, Switches & Plugs, Lights, Fans) with card layout
+- Search filter for entities
+- Collapsible entity groups with "Show all" for large lists
+
 ## 1.2.0
 
 - Sensor data push — reads mapped sensor entities every 5 min and pushes temperature, humidity, illuminance, moisture values to GrowCopilot

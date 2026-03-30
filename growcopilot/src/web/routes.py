@@ -62,6 +62,8 @@ async def handle_setup_post(request: web.Request) -> web.Response:
     options["api_token"] = token
     options_path.parent.mkdir(parents=True, exist_ok=True)
     options_path.write_text(json.dumps(options))
+    # Also persist token separately (survives HA addon updates that reset options.json)
+    Path("/data/gc_token").write_text(token)
     raise web.HTTPFound(f"{base}/entities")
 
 

@@ -27,8 +27,13 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-
 .status-badge { display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 500; margin-top: 8px; }
 .status-badge--ok { background: rgba(74,222,128,0.15); color: var(--green); }
 .status-badge--error { background: rgba(239,68,68,0.15); color: var(--red); }
-.entity-section { margin-top: 16px; }
-.entity-section h3 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 8px; }
+.entity-section { margin-top: 20px; padding: 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; }
+.entity-section h3 { font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+.entity-count { font-size: 12px; color: var(--muted); font-weight: 400; }
+.entity-group { max-height: 420px; overflow: hidden; transition: max-height 300ms ease; }
+.entity-group.expanded { max-height: none; }
+.btn-show-more { background: none; border: 1px solid var(--border); border-radius: 4px; color: var(--green); font-size: 12px; padding: 6px 12px; cursor: pointer; margin-top: 8px; }
+.btn-show-more:hover { background: rgba(74,222,128,0.08); }
 .entity-check { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--surface-raised); border-radius: 6px; margin-bottom: 6px; cursor: pointer; }
 .entity-check:hover { background: rgba(255,255,255,0.06); }
 .entity-check input[type="checkbox"] { accent-color: var(--green); width: 16px; height: 16px; }

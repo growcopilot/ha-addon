@@ -2,50 +2,73 @@
 {% block content %}
 <div class="panel">
   <h2>Select Entities</h2>
-  <p class="muted">Choose which cameras and sensors to forward to GrowCopilot.</p>
+  <p class="muted">Choose which entities to forward to GrowCopilot. Map them to grow spaces in the app.</p>
   {% if saved %}
-  <div class="status-badge status-badge--ok">Saved &amp; synced</div>
+  <div class="status-badge status-badge--ok" style="margin-bottom: 12px;">Saved &amp; synced</div>
   {% endif %}
+
+  <input type="text" id="entity-search" class="input" placeholder="Search entities..." style="margin-bottom: 16px;" oninput="filterEntities(this.value)">
+
   <form method="post" action="{{ base }}/entities">
-    {% set cameras = [] %}
-    {% set sensors = [] %}
+    {% set groups = {} %}
     {% for e in entities %}
-      {% if e.entityType == 'camera' %}{% if cameras.append(e) %}{% endif %}
-      {% else %}{% if sensors.append(e) %}{% endif %}
-      {% endif %}
+      {% set t = e.entityType %}
+      {% if t not in groups %}{% if groups.update({t: []}) %}{% endif %}{% endif %}
+      {% if groups[t].append(e) %}{% endif %}
     {% endfor %}
-    {% if cameras %}
-    <div class="entity-section">
-      <h3>Cameras</h3>
-      {% for e in cameras %}
-      <label class="entity-check">
-        <input type="checkbox" name="{{ e.entityId }}" value="1" {% if e.entityId in selected_ids %}checked{% endif %}>
-        <span class="entity-check-label">
-          <strong>{{ e.friendlyName }}</strong>
-          <span class="muted">{{ e.entityId }}</span>
-        </span>
-      </label>
-      {% endfor %}
+
+    {% set type_labels = {'camera': 'Cameras', 'sensor': 'Sensors', 'switch': 'Switches & Plugs', 'light': 'Lights', 'fan': 'Fans'} %}
+    {% set type_icons = {'camera': '📷', 'sensor': '🌡️', 'switch': '🔌', 'light': '💡', 'fan': '🌀'} %}
+
+    {% for etype in ['camera', 'sensor', 'switch', 'light', 'fan'] %}
+    {% if etype in groups %}
+    <div class="entity-section" data-type="{{ etype }}">
+      <h3>{{ type_icons.get(etype, '📦') }} {{ type_labels.get(etype, etype | capitalize) }} <span class="entity-count">({{ groups[etype] | length }})</span></h3>
+      <div class="entity-group" id="group-{{ etype }}">
+        {% for e in groups[etype] %}
+        <label class="entity-check" data-name="{{ e.friendlyName | lower }}" data-id="{{ e.entityId | lower }}">
+          <input type="checkbox" name="{{ e.entityId }}" value="1" {% if e.entityId in selected_ids %}checked{% endif %}>
+          <span class="entity-check-label">
+            <strong>{{ e.friendlyName }}</strong>
+            <span class="muted">{{ e.entityId }}</span>
+          </span>
+        </label>
+        {% endfor %}
+      </div>
+      {% if groups[etype] | length > 10 %}
+      <button type="button" class="btn-show-more" onclick="toggleGroup('{{ etype }}')">Show all ({{ groups[etype] | length }})</button>
+      {% endif %}
     </div>
     {% endif %}
-    {% if sensors %}
-    <div class="entity-section">
-      <h3>Sensors</h3>
-      {% for e in sensors %}
-      <label class="entity-check">
-        <input type="checkbox" name="{{ e.entityId }}" value="1" {% if e.entityId in selected_ids %}checked{% endif %}>
-        <span class="entity-check-label">
-          <strong>{{ e.friendlyName }}</strong>
-          <span class="muted">{{ e.entityId }}</span>
-        </span>
-      </label>
-      {% endfor %}
-    </div>
-    {% endif %}
+    {% endfor %}
+
     {% if not entities %}
-    <p class="muted">No cameras or sensors found. Make sure your HA instance has camera or sensor entities.</p>
+    <p class="muted">No entities found. Make sure your HA instance has camera, sensor, switch, or light entities.</p>
     {% endif %}
-    <button type="submit" class="btn-primary">Save &amp; Sync</button>
+    <button type="submit" class="btn-primary" style="margin-top: 16px;">Save &amp; Sync</button>
   </form>
 </div>
+
+<script>
+function filterEntities(query) {
+  const q = query.toLowerCase();
+  document.querySelectorAll('.entity-check').forEach(el => {
+    const name = el.dataset.name || '';
+    const id = el.dataset.id || '';
+    el.style.display = (!q || name.includes(q) || id.includes(q)) ? '' : 'none';
+  });
+}
+
+function toggleGroup(type) {
+  const group = document.getElementById('group-' + type);
+  const btn = group.parentElement.querySelector('.btn-show-more');
+  if (group.classList.contains('expanded')) {
+    group.classList.remove('expanded');
+    btn.textContent = 'Show all (' + group.children.length + ')';
+  } else {
+    group.classList.add('expanded');
+    btn.textContent = 'Show less';
+  }
+}
+</script>
 {% endblock %}

@@ -36,6 +36,12 @@ async def main() -> None:
     except FileNotFoundError:
         pass
 
+    # Fallback: read token from persistent file (survives HA addon updates)
+    token_file = pathlib.Path("/data/gc_token")
+    if not api_token and token_file.exists():
+        api_token = token_file.read_text().strip()
+        logger.info("Restored API token from persistent storage")
+
     gc_client = GrowCopilotClient(
         api_token=api_token,
         api_base_url=api_url or "https://api.growcopilot.ai",
