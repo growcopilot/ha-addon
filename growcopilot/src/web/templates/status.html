@@ -2,6 +2,7 @@
 {% block content %}
 <div class="panel">
   <h2>Status</h2>
+
   <div class="status-grid">
     <div class="status-item">
       <div class="label-small">API Connection</div>
@@ -9,7 +10,75 @@
         {% if has_token %}Connected{% else %}Not configured{% endif %}
       </div>
     </div>
+    <div class="status-item">
+      <div class="label-small">Discovered Entities</div>
+      <div>{{ discovered_count }}</div>
+    </div>
+    <div class="status-item">
+      <div class="label-small">Selected Entities</div>
+      <div>{{ selected_count }}</div>
+    </div>
   </div>
-  <p class="muted" style="margin-top: 16px;">Capture status and error logs will appear here once cameras are mapped in GrowCopilot.</p>
+</div>
+
+{% if camera_targets %}
+<div class="panel" style="margin-top: 16px;">
+  <h3>Active Cameras</h3>
+  <div class="entity-list">
+    {% for cam in camera_targets %}
+    <div class="entity-row">
+      <div class="entity-row-info">
+        <strong>{{ cam.friendlyName }}</strong>
+        <span class="muted">{{ cam.entityId }}</span>
+      </div>
+      <div class="entity-row-stats">
+        <div class="status-item">
+          <div class="label-small">Interval</div>
+          <div>{{ (cam.intervalSec / 60) | int }}min</div>
+        </div>
+        <div class="status-item">
+          <div class="label-small">Last capture</div>
+          <div>{% if cam.lastCapture is not none %}{{ cam.lastCapture }}s ago{% else %}waiting...{% endif %}</div>
+        </div>
+        <div class="status-item">
+          <div class="label-small">Next in</div>
+          <div>~{{ (cam.nextIn / 60) | int }}min</div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+{% if sensors %}
+<div class="panel" style="margin-top: 16px;">
+  <h3>Selected Sensors</h3>
+  <div class="entity-list">
+    {% for s in sensors %}
+    <div class="entity-row">
+      <div class="entity-row-info">
+        <strong>{{ s.friendlyName }}</strong>
+        <span class="muted">{{ s.entityId }}</span>
+      </div>
+      <div class="entity-row-stats">
+        <span class="status-badge status-badge--ok">Selected</span>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+{% if not camera_targets and not sensors %}
+<div class="panel" style="margin-top: 16px;">
+  <p class="muted">No cameras or sensors mapped yet. Select entities on the <a href="{{ base }}/entities">Entities</a> page, then map them to grow spaces in <a href="https://app.growcopilot.ai/settings/connected-devices" target="_blank" rel="noopener">GrowCopilot</a>.</p>
+</div>
+{% endif %}
+
+<div class="panel" style="margin-top: 16px;">
+  <p style="font-size: 13px;">
+    <a href="https://app.growcopilot.ai" target="_blank" rel="noopener" style="color: var(--accent);">Open GrowCopilot App &rarr;</a>
+  </p>
 </div>
 {% endblock %}

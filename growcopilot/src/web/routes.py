@@ -1,11 +1,13 @@
 """Web UI routes for the ingress panel."""
 import json
 import logging
+import time
 from pathlib import Path
 import aiohttp_jinja2
 from aiohttp import web
 from src.gc_client import GrowCopilotClient
 from src.discovery import DiscoveryLoop
+from src.capture import CaptureLoop
 
 logger = logging.getLogger("growcopilot.web.routes")
 STATIC_DIR = Path(__file__).parent.parent.parent / "static"
@@ -85,4 +87,40 @@ async def handle_entities_post(request: web.Request) -> web.Response:
 @aiohttp_jinja2.template("status.html")
 async def handle_status(request: web.Request) -> dict:
     gc: GrowCopilotClient = request.app["gc_client"]
-    return {"has_token": bool(gc.api_token), "page": "status", "base": _base(request)}
+    discovery: DiscoveryLoop = request.app["discovery"]
+    capture: CaptureLoop | None = request.app.get("capture")
+
+    now = time.time()
+    camera_targets = []
+    for entity_id, target in (capture.targets if capture else {}).items():
+        last_ts = capture._last_capture.get(entity_id, 0) if capture else 0
+        interval = target.get("intervalSec", 900)
+        next_in = max(0, int(interval - (now - last_ts))) if last_ts else 0
+        friendly = entity_id
+        for e in discovery.discovered:
+            if e["entityId"] == entity_id:
+                friendly = e.get("friendlyName", entity_id)
+                break
+        camera_targets.append({
+            "entityId": entity_id,
+            "friendlyName": friendly,
+            "growSpaceId": target.get("growSpaceId", ""),
+            "intervalSec": interval,
+            "lastCapture": int(now - last_ts) if last_ts else None,
+            "nextIn": next_in if last_ts else interval,
+        })
+
+    selected_sensors = [
+        e for e in discovery.discovered
+        if e["entityId"] in discovery.selected_ids and e["entityType"] == "sensor"
+    ]
+
+    return {
+        "has_token": bool(gc.api_token),
+        "page": "status",
+        "base": _base(request),
+        "selected_count": len(discovery.selected_ids),
+        "discovered_count": len(discovery.discovered),
+        "camera_targets": camera_targets,
+        "sensors": selected_sensors,
+    }
