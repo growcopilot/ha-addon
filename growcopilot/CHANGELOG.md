@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.2
+
+- Fix Python 3.9 compatibility — replaced `dict[str, Any] | None` syntax with `Optional[dict[str, Any]]` in ha_client.py (was crashing the add-on on startup)
+
 ## 1.2.1
 
 - Token persistence across add-on updates — token saved to separate file that HA won't overwrite

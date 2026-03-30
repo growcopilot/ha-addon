@@ -1,7 +1,8 @@
 """Home Assistant Supervisor API client."""
+from __future__ import annotations
 import os
 import logging
-from typing import Any
+from typing import Any, Optional
 import aiohttp
 
 logger = logging.getLogger("growcopilot.ha_client")
@@ -29,7 +30,7 @@ class HASupervisorClient:
                 resp.raise_for_status()
                 return await resp.read()
 
-    async def call_service(self, domain: str, service: str, entity_id: str, data: dict[str, Any] | None = None) -> bool:
+    async def call_service(self, domain: str, service: str, entity_id: str, data: Optional[dict[str, Any]] = None) -> bool:
         """Call a Home Assistant service (e.g., switch/turn_on)."""
         payload: dict[str, Any] = {"entity_id": entity_id}
         if data:
@@ -42,7 +43,7 @@ class HASupervisorClient:
             ) as resp:
                 return resp.ok
 
-    async def get_entity_state(self, entity_id: str) -> dict[str, Any] | None:
+    async def get_entity_state(self, entity_id: str) -> Optional[dict[str, Any]]:
         """Get current state of a single entity."""
         async with aiohttp.ClientSession() as session:
             async with session.get(f"{SUPERVISOR_URL}/core/api/states/{entity_id}", headers=self._headers) as resp:
