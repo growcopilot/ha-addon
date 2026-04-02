@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.3
+
+- Fix missing capturedAt timestamp on snapshot uploads — scheduler could not find HA captures for health reports
+
 ## 1.2.2
 
 - Fix Python 3.9 compatibility — replaced `dict[str, Any] | None` syntax with `Optional[dict[str, Any]]` in ha_client.py (was crashing the add-on on startup)

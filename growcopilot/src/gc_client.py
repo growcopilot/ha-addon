@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import io
 import logging
+from datetime import datetime, timezone
 from typing import Any, Optional
 import aiohttp
 
@@ -57,6 +58,7 @@ class GrowCopilotClient:
             data.add_field("sourceType", "home-assistant")
             data.add_field("deviceName", entity_id)
             data.add_field("growSpaceId", grow_space_id)
+            data.add_field("capturedAt", datetime.now(timezone.utc).isoformat())
             async with aiohttp.ClientSession() as session:
                 async with session.post(f"{self.api_base_url}/plant-image", headers=self._headers, data=data) as resp:
                     if resp.ok:
